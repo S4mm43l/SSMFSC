@@ -3,12 +3,19 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
+    origin: [
+      'http://localhost:5173',
+      'https://leafy-belekoy-4d2c23.netlify.app',
+      /\.netlify\.app$/,       // allow all Netlify preview URLs
+    ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
-  await app.listen(process.env.PORT ?? 3000);
+
+  await app.listen(process.env.PORT || 3000);
 }
+
 bootstrap();
