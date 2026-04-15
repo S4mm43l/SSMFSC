@@ -1,0 +1,37 @@
+3. Návrh architektúry webovej platformy
+
+Táto kapitola sa zaoberá návrhom architektúry webovej platformy určenej na centralizované zdieľanie informácií, dokumentov a kalendárových údajov. Pri jej návrhu je vhodné vychádzať z klient-server modelu a viacvrstvového usporiadania aplikácie, v ktorom sú oddelené prezentačná vrstva, aplikačná logika a dátová vrstva. Takéto členenie podporuje modularitu riešenia, zjednodušuje správu systému a vytvára vhodné predpoklady pre ďalšie rozširovanie platformy [1], [2], [3], [4].
+
+V navrhovanom riešení frontendová časť zabezpečuje používateľské rozhranie, navigáciu a vizualizáciu údajov, zatiaľ čo backendová časť spracúva požiadavky, vykonáva aplikačnú logiku a komunikuje s databázou. Takéto architektonické rozdelenie je vhodné najmä pri platformách, ktoré majú spájať viacero funkčných oblastí do jedného prostredia a zároveň zachovať prehľadnosť implementácie aj údržby [1], [2], [3].
+
+3.1 Funkčné požiadavky platformy
+
+Základnou funkčnou požiadavkou platformy je vytvorenie jednotného webového prostredia, v ktorom bude môcť používateľ po prihlásení pristupovať k informáciám, dokumentom a plánovaným udalostiam z jedného miesta. Keďže dynamické webové aplikácie spracúvajú požiadavky používateľa na serveri a následne vracajú prispôsobený obsah, je vhodné navrhnúť platformu tak, aby podporovala zobrazovanie aktuálnych oznamov, prácu s dokumentmi a správu kalendárových údajov podľa konkrétneho používateľa a jeho oprávnení [1], [3].
+
+Z hľadiska používateľských rolí je potrebné, aby systém rozlišoval aspoň základné úrovne prístupu, napríklad administrátora, správcu obsahu a bežného používateľa. Riadenie prístupu na základe rolí predstavuje praktický a prehľadný spôsob, ako priradiť používateľom konkrétne oprávnenia k aplikácii, jej sekciám alebo jednotlivým operáciám, a zároveň znižuje chybovosť pri manuálnom prideľovaní oprávnení [10], [15].
+
+3.2 Návrh modulov pre zdieľanie informácií, dokumentov a kalendára
+
+Na základe definovaných požiadaviek je vhodné navrhnúť architektúru platformy modulárne. Modulárny prístup umožňuje rozdeliť riešenie na logické celky, pričom jednotlivé vrstvy a moduly medzi sebou komunikujú prostredníctvom jasne definovaných rozhraní. V prípade tejto platformy ide najmä o informačný modul, dokumentový modul a kalendárový modul, ktoré sú doplnené o spoločné mechanizmy autentifikácie, autorizácie a správy používateľov [2], [3].
+
+Informačný modul má zabezpečovať publikovanie oznamov, aktualít a interných oznámení. Dokumentový modul má slúžiť na nahrávanie, ukladanie, triedenie a vyhľadávanie súborov podľa kategórií a oprávnení. Kalendárový modul má používateľovi poskytovať prehľad o termínoch, udalostiach a rezerváciách v časovo usporiadanej forme. Pri dokumentovom module je súčasne dôležité, aby operácie nahrávania, zmeny alebo sprístupnenia súborov boli naviazané na autentifikáciu používateľa a kontrolu jeho oprávnení, keďže práve tieto dve úrovne OWASP odporúča pri službách pracujúcich s uploadom súborov overovať ako základné [10], [12].
+
+Jednotlivé moduly nemajú fungovať izolovane, ale ako vzájomne prepojené časti jednej platformy. To znamená, že informačný príspevok môže odkazovať na dokument, dokument môže súvisieť s konkrétnou udalosťou v kalendári a kalendárová položka môže byť zobrazovaná len vybranej skupine používateľov. Takéto prepojenie zvyšuje informačnú hodnotu systému a podporuje centralizované používanie platformy [1], [2], [3].
+
+3.3 Návrh databázového modelu a dátových tokov
+
+Pri návrhu dátovej vrstvy je vhodné využiť relačný databázový model. PostgreSQL v aktuálnej dokumentácii uvádza, že relačný databázový systém pracuje s dátami uloženými v reláciách, teda v tabuľkách, a pri definovaní dátovej štruktúry sa zohľadňujú aj schémy a prístupové práva k tabuľkám. Tento prístup je vhodný najmä tam, kde aplikácia pracuje s jasne definovanými entitami a väzbami medzi nimi, ako sú používateľ, rola, dokument, informačný príspevok alebo kalendárová udalosť [5], [6].
+
+V navrhovanej platforme by mal databázový model obsahovať tabuľky reprezentujúce používateľov, roly, informačné príspevky, dokumenty, kategórie dokumentov a kalendárové udalosti. Nad týmito entitami majú byť definované väzby, ktoré umožnia prepájať obsah, evidovať autorov, sledovať dátumy vytvorenia a upravenia záznamov a riadiť prístup k jednotlivým položkám. Takýto model vytvára pevný základ pre aplikačnú logiku a zároveň zjednodušuje neskoršie rozšírenie databázy o ďalšie moduly alebo doplnkové záznamy, napríklad notifikácie či auditné logy [5], [6].
+
+Dátové toky v systéme vychádzajú z bežného princípu webovej komunikácie. Používateľ vykoná akciu vo frontendovej vrstve, požiadavka je odoslaná na server, backend ju spracuje, podľa potreby komunikuje s databázou a následne odošle odpoveď späť klientovi. Tento model zodpovedá štandardnému správaniu webových aplikácií, pri ktorom server prijíma požiadavky, spracúva ich a vracia HTTP odpovede s požadovaným obsahom alebo výsledkom vykonanej operácie [1], [3].
+
+3.4 Návrh bezpečnostných a prístupových mechanizmov
+
+Bezpečnostná vrstva navrhovanej platformy musí byť postavená najmä na autentifikácii, autorizácii a bezpečnej správe relácií. OWASP definuje autentifikáciu ako proces overenia identity subjektu a zároveň upozorňuje, že heslá majú byť ukladané pomocou vhodných hashovacích algoritmov, nie reverzibilným šifrovaním. Rovnako je potrebné bezpečne spravovať používateľské relácie, keďže session identifikátor alebo token viaže autentifikovaného používateľa na jeho HTTP komunikáciu a jeho kompromitovanie môže viesť k prevzatiu relácie [7], [8], [9].
+
+Na autentifikáciu musí nadväzovať autorizácia, teda rozhodovanie o tom, ku ktorým zdrojom a operáciám má konkrétny používateľ prístup. Z praktického hľadiska je vhodné uplatniť model založený na rolách, keďže ten umožňuje priraďovať oprávnenia podľa zodpovedností používateľov a zjednodušuje správu prístupových pravidiel. V aplikačnej praxi má mať každý modul platformy prístupové kontroly nielen na úrovni používateľského rozhrania, ale aj na úrovni backendových operácií a API volaní [10], [15].
+
+Dôležitým bezpečnostným požiadavkám zodpovedá aj ochrana dát počas prenosu a pri práci so súbormi. TLS je podľa MDN protokol, ktorý umožňuje bezpečnú komunikáciu klienta so serverom cez nedôveryhodnú sieť a na webe tvorí základ protokolu HTTPS. Pri platforme pracujúcej s dokumentmi je zároveň potrebné kontrolovať oprávnenia pri uploadovaní a sprístupňovaní súborov, validovať typy a vlastnosti nahrávaných dát a neponechať tieto operácie bez väzby na identifikovaného používateľa [11], [12].
+
+Súčasťou bezpečnostného návrhu má byť aj evidencia dôležitých udalostí v systéme. OWASP pri aplikačnom logovaní zdôrazňuje, že logovanie je dôležité nielen pre bezpečnostné, ale aj prevádzkové účely, pričom záznamy o prihláseniach, zmenách oprávnení, nahrávaní dokumentov alebo úpravách obsahu výrazne pomáhajú pri analýze incidentov aj pri prevádzkovej diagnostike. Keďže aktuálny OWASP Top 10:2025 naďalej upozorňuje na najkritickejšie riziká webových aplikácií, bezpečnostné mechanizmy platformy musia byť chápané ako integrálna súčasť architektúry, nie ako doplnok riešený až po implementácii [13], [14].
