@@ -8,14 +8,14 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173',
       'https://leafy-belekoy-4d2c23.netlify.app',
-      /\.netlify\.app$/,       // allow all Netlify preview URLs
+      /\.netlify\.app$/,
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
 
 bootstrap();
